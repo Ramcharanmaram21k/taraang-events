@@ -60,14 +60,14 @@ const Contact = () => {
           <div className="space-y-8">
              <h3 className="font-headline text-2xl font-bold">Send Us a Message</h3>
              <Card>
-                <CardContent className="pt-6 space-y-4">
-                   <a href="https://wa.me/919494555291" target="_blank" rel="noopener noreferrer">
+                <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <a href="https://wa.me/919494555291" target="_blank" rel="noopener noreferrer" className="col-span-1">
                     <Button className="w-full">
                       <WhatsAppIcon />
                       <span>Chat on WhatsApp</span>
                     </Button>
                   </a>
-                  <a href="mailto:contact@taraangevents.com">
+                  <a href="mailto:contact@taraangevents.com" className="col-span-1">
                     <Button variant="outline" className="w-full">
                       <Mail />
                       <span>Send an Email</span>

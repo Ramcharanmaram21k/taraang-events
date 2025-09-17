@@ -3,7 +3,7 @@ import Logo from "@/components/logo";
 
 const Footer = () => {
   return (
-    <footer className="bg-secondary">
+    <footer className="bg-background border-t">
       <div className="container mx-auto flex flex-col items-center justify-between gap-4 py-6 md:flex-row">
         <div className="flex items-center gap-2">
           <Logo className="h-8 w-8" />
