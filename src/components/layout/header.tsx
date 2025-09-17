@@ -26,7 +26,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground" style={{ backgroundColor: '#002699' }}>
+    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground" style={{ backgroundColor: '#002080' }}>
       {/* Use a full-bleed row so edges can be flush */}
       <div className="flex items-center justify-between w-full h-16 px-3 md:px-4">
         {/* Logo - flush to the extreme left */}
