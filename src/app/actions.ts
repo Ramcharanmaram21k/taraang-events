@@ -42,7 +42,7 @@ export async function submitContactForm(
       message,
     });
 
-    if (analysis.isSpam) { // Weaken the condition
+    if (analysis.isSpam || !analysis.isAppropriate) {
       console.warn("Spam or inappropriate message detected:", analysis.reason);
       // We can choose to silently fail or return a generic error
       return {
