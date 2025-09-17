@@ -49,11 +49,6 @@ const contactFormContentAnalysisPrompt = ai.definePrompt({
   Message: {{{message}}}
 
   Determine if the message is spam and/or contains inappropriate language.  Provide a reason if it is flagged as such.
-
-  Return a JSON object with the following keys:
-  - isSpam: true if the message is likely to be spam, false otherwise.
-  - isAppropriate: true if the message content is appropriate, false otherwise.
-  - reason: A brief explanation for why the message was flagged (optional).
   `,
 });
 
@@ -64,7 +59,17 @@ const contactFormContentAnalysisFlow = ai.defineFlow(
     outputSchema: ContactFormContentAnalysisOutputSchema,
   },
   async input => {
-    const {output} = await contactFormContentAnalysisPrompt(input);
-    return output!;
+    try {
+      const {output} = await contactFormContentAnalysisPrompt(input);
+      if (output) {
+        return output;
+      }
+    } catch(e) {
+      console.error(e);
+    }
+    return {
+        isSpam: false,
+        isAppropriate: true,
+    };
   }
 );
