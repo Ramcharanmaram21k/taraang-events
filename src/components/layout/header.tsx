@@ -71,7 +71,7 @@ export default function Header() {
               </Button>
             </SheetTrigger>
 
-            <SheetContent side="left" className="pr-0 bg-primary text-primary-foreground">
+            <SheetContent side="left" className="pr-0 bg-primary text-primary-foreground" style={{ backgroundColor: '#002080' }}>
               <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
               <SheetDescription className="sr-only">
                 A menu of links to navigate the site.
