@@ -33,39 +33,39 @@
     },
     {
       "id": "gallery-1",
-      "description": "A candid moment from an Indian marriage ceremony.",
+      "description": "Close-up of succulent plants.",
       "imageUrl": "https://picsum.photos/seed/gallery1/600/400",
-      "imageHint": "indian marriage"
+      "imageHint": "succulent plants"
     },
     {
       "id": "gallery-2",
-      "description": "Elaborate floral decoration at an event.",
-      "imageUrl": "https://picsum.photos/seed/gallery2/600/400",
-      "imageHint": "event decoration"
+      "description": "Intricate mehendi design on a bride's hands.",
+      "imageUrl": "https://picsum.photos/seed/gallery6/600/400",
+      "imageHint": "mehendi art"
     },
     {
       "id": "gallery-3",
-      "description": "Happy guests at a wedding reception.",
+      "description": "Sun setting over misty mountains.",
       "imageUrl": "https://picsum.photos/seed/gallery3/600/400",
-      "imageHint": "wedding guests"
+      "imageHint": "mountain sunset"
     },
     {
       "id": "gallery-4",
-      "description": "A delicious spread of food at an event.",
+      "description": "Woman in red beanie taking a photo with a vintage camera.",
       "imageUrl": "https://picsum.photos/seed/gallery4/600/400",
-      "imageHint": "event catering"
+      "imageHint": "woman camera"
     },
     {
       "id": "gallery-5",
-      "description": "Guests dancing during a Sangeet ceremony.",
+      "description": "Cityscape from a high vantage point.",
       "imageUrl": "https://picsum.photos/seed/gallery5/600/400",
-      "imageHint": "sangeet ceremony"
+      "imageHint": "cityscape view"
     },
     {
       "id": "gallery-6",
-      "description": "Intricate Mehendi art on a bride's hands.",
-      "imageUrl": "https://picsum.photos/seed/gallery6/600/400",
-      "imageHint": "mehendi art"
+      "description": "Elaborate floral decoration at an event.",
+      "imageUrl": "https://picsum.photos/seed/gallery2/600/400",
+      "imageHint": "event decoration"
     }
   ]
 }
