@@ -10,6 +10,8 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 
 const navLinks = [
@@ -24,7 +26,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground" style={{ backgroundColor: '#002699' }}>
       {/* Use a full-bleed row so edges can be flush */}
       <div className="flex items-center justify-between w-full h-16 px-3 md:px-4">
         {/* Logo - flush to the extreme left */}
@@ -70,6 +72,10 @@ export default function Header() {
             </SheetTrigger>
 
             <SheetContent side="left" className="pr-0 bg-primary text-primary-foreground">
+              <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+              <SheetDescription className="sr-only">
+                A menu of links to navigate the site.
+              </SheetDescription>
               <div className="flex items-center justify-between p-4 border-b border-primary-foreground/20">
                 <Link href="/" className="flex items-center gap-3">
                   <Image src="/logo.png" alt="Taraang Events" width={28} height={28} className="drop-shadow-sm"/>
