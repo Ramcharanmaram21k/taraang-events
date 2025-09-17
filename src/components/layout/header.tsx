@@ -26,7 +26,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur">
       <div className="container flex h-16 items-center">
-        <div className="flex items-center gap-3 mr-auto">
+        <div className="mr-auto flex items-center gap-2">
           <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.png"
@@ -42,10 +42,10 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav>
+        <nav className="hidden md:block">
           <ul className="flex items-center gap-6">
             {navLinks.map(({ href, label }) => (
-              <li key={label} className="hidden md:block">
+              <li key={label}>
                 <Link
                   href={href}
                   className="text-sm font-medium transition-colors hover:text-primary"
