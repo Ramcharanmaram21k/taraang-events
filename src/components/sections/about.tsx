@@ -10,7 +10,9 @@ const About = () => {
               About Taraang Events
             </h2>
             <p className="mt-6 text-lg text-muted-foreground">
-              Taraang Events is a premier event management company specializing in creating unforgettable experiences. From elegant weddings and professional corporate events to vibrant parties and traditional Indian functions, our dedicated team brings your vision to life with creativity, precision, and passion.
+            At Taraang Events, we believe that every event is a canvas for creating unforgettable memories. Our passion lies in blending local tradition with modern innovation, ensuring each celebration is both authentic and spectacular."
+"With a foundation built on professionalism, boundless creativity, and deep-seated cultural expertise, we have earned the trust of our clients to bring their cherished visions to life. We work to craft not just events, but meaningful experiences, leaving lasting impressions."
+"We handle the intricate details so you can immerse yourself in the joy of the moment
             </p>
              <p className="mt-4 text-lg text-muted-foreground">
               We believe every event tells a unique story, and we are committed to making yours exceptional.
