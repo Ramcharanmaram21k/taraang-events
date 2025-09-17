@@ -1,15 +1,17 @@
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const contactDetails = [
   {
-    name: "Ramcharan",
-    phone: "6300016126",
-  },
-  {
     name: "K. Ramakrishna",
     phone: "9494555291",
+    role: "Event Manager",
+  },
+  {
+    name: "M. Ramcharan",
+    phone: "6300016126",
+    role: "Coordinator",
   },
 ];
 
@@ -25,7 +27,6 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-
 const Contact = () => {
   return (
     <section id="contact" className="bg-secondary py-16 md:py-24">
@@ -38,17 +39,29 @@ const Contact = () => {
             Have a question or ready to plan your event? Contact us today!
           </p>
         </div>
+
         <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Contact Info */}
           <div className="space-y-8">
             <h3 className="font-headline text-2xl font-bold">Contact Information</h3>
             <div className="space-y-6">
               {contactDetails.map((contact) => (
-                <Card key={contact.name}>
+                <Card
+                  key={contact.name}
+                  className="hover:shadow-lg transition-shadow duration-300"
+                >
                   <CardHeader>
-                    <CardTitle className="font-headline text-xl">{contact.name}</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <User className="h-5 w-5 text-primary" />
+                      {contact.name}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">{contact.role}</p>
                   </CardHeader>
                   <CardContent>
-                    <a href={`tel:${contact.phone}`} className="flex items-center gap-3 text-lg transition-colors hover:text-primary">
+                    <a
+                      href={`tel:${contact.phone}`}
+                      className="flex items-center gap-3 text-lg transition-colors hover:text-primary"
+                    >
                       <Phone className="h-5 w-5" />
                       <span>{contact.phone}</span>
                     </a>
@@ -57,24 +70,31 @@ const Contact = () => {
               ))}
             </div>
           </div>
+
+          {/* Message Section */}
           <div className="space-y-8">
-             <h3 className="font-headline text-2xl font-bold">Send Us a Message</h3>
-             <Card>
-                <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                   <a href="https://wa.me/919494555291" target="_blank" rel="noopener noreferrer" className="col-span-1">
-                    <Button className="w-full">
-                      <WhatsAppIcon />
-                      <span>Chat on WhatsApp</span>
-                    </Button>
-                  </a>
-                  <a href="mailto:contact@taraangevents.com" className="col-span-1">
-                    <Button variant="outline" className="w-full">
-                      <Mail />
-                      <span>Send an Email</span>
-                    </Button>
-                  </a>
-                </CardContent>
-             </Card>
+            <h3 className="font-headline text-2xl font-bold">Send Us a Message</h3>
+            <Card>
+  <CardContent className="pt-6 grid grid-cols-1 gap-4">
+    <a
+      href="https://wa.me/919494555291"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="w-full"
+    >
+      <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
+        <WhatsAppIcon />
+        <span>Chat on WhatsApp</span>
+      </Button>
+    </a>
+    <a href="mailto:tarangevents25@gmail.com" className="w-full">
+      <Button variant="outline" className="w-full">
+        <Mail />
+        <span>Send an Email</span>
+      </Button>
+    </a>
+  </CardContent>
+</Card>
           </div>
         </div>
       </div>
