@@ -33,8 +33,8 @@ export default function Header() {
             <Image
               src="/logo.png"
               alt="Taraang Events Logo"
-              width={40}
-              height={40}
+              width={48}
+              height={48}
               priority
               className="drop-shadow-lg"
             />
@@ -76,7 +76,7 @@ export default function Header() {
                </SheetDescription>
               <div className="flex items-center justify-between p-4 border-b border-primary-foreground/20">
                 <Link href="/" className="flex items-center gap-3">
-                  <Image src="/logo.png" alt="Taraang Events" width={32} height={32} className="drop-shadow-lg"/>
+                  <Image src="/logo.png" alt="Taraang Events" width={40} height={40} className="drop-shadow-lg"/>
                   <span className="font-headline text-lg font-bold">Taraang Events</span>
                 </Link>
                 <SheetClose asChild>
