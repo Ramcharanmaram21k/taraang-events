@@ -114,7 +114,7 @@ const Gallery = () => {
             Event Gallery Showcase
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            Explore a curated collection of our finest work or upload your own images to get a custom layout.
+            Explore a curated collection of our finest work and draw inspiration for your next event.
           </p>
           <input
             type="file"
