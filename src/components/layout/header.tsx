@@ -27,10 +27,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground" style={{ backgroundColor: '#002080' }}>
-      {/* Use a full-bleed row so edges can be flush */}
-      <div className="flex items-center justify-between w-full h-16 px-3 md:px-4">
-        {/* Logo - flush to the extreme left */}
-        <div className="flex items-center gap-3 ml-0">
+      <div className="container flex items-center justify-between h-16">
+        <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.png"
@@ -46,14 +44,14 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Desktop nav - flush to the extreme right */}
-        <nav className="hidden md:flex items-center h-full">
-          <ul className="flex items-center h-full">
-            {navLinks.map(({ href, label }, idx) => (
-              <li key={label} className={`${idx === 0 ? "ml-6" : "ml-6"}`}>
+        {/* Desktop nav */}
+        <nav className="hidden md:flex">
+          <ul className="flex items-center gap-6">
+            {navLinks.map(({ href, label }) => (
+              <li key={label}>
                 <Link
                   href={href}
-                  className="inline-block h-full flex items-center px-0 py-3 text-sm font-medium transition-colors hover:text-primary-foreground/80"
+                  className="text-sm font-medium transition-colors hover:text-primary-foreground/80"
                 >
                   {label}
                 </Link>
@@ -72,10 +70,10 @@ export default function Header() {
             </SheetTrigger>
 
             <SheetContent side="left" className="pr-0 bg-primary text-primary-foreground" style={{ backgroundColor: '#002080' }}>
-              <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-              <SheetDescription className="sr-only">
-                A menu of links to navigate the site.
-              </SheetDescription>
+               <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+               <SheetDescription className="sr-only">
+                 A menu of links to navigate the site.
+               </SheetDescription>
               <div className="flex items-center justify-between p-4 border-b border-primary-foreground/20">
                 <Link href="/" className="flex items-center gap-3">
                   <Image src="/logo.png" alt="Taraang Events" width={28} height={28} className="drop-shadow-sm"/>
