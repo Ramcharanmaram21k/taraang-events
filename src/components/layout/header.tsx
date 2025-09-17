@@ -69,7 +69,7 @@ export default function Header() {
               </Button>
             </SheetTrigger>
 
-            <SheetContent side="left" className="pr-0 bg-primary text-primary-foreground" style={{ backgroundColor: '#002080' }}>
+            <SheetContent side="right" className="pr-0 bg-primary text-primary-foreground border-l-0" style={{ backgroundColor: '#002080' }}>
                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                <SheetDescription className="sr-only">
                  A menu of links to navigate the site.
@@ -80,11 +80,12 @@ export default function Header() {
                   <span className="font-headline text-lg font-bold">Taraang Events</span>
                 </Link>
                 <SheetClose asChild>
-                  <Button
+                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsMobileMenuOpen(false)}
                     aria-label="Close menu"
+                    className="hover:bg-primary-foreground/10 focus:ring-0"
                   >
                     <X className="h-5 w-5" />
                   </Button>
