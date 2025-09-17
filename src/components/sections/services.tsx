@@ -53,7 +53,7 @@ const Services = () => {
             return (
               <Card key={service.title} className="text-center transition-shadow duration-300 hover:shadow-xl">
                 <CardHeader>
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-accent">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-pink-100">
                     <Icon className="h-8 w-8 text-primary" />
                   </div>
                 </CardHeader>
