@@ -10,16 +10,29 @@ const About = () => {
               About Taraang Events
             </h2>
             <p className="mt-6 text-lg text-muted-foreground">
-            At Taraang Events, we believe that every event is a canvas for creating unforgettable memories. Our passion lies in blending local tradition with modern innovation, ensuring each celebration is both authentic and spectacular."
-"With a foundation built on professionalism, boundless creativity, and deep-seated cultural expertise, we have earned the trust of our clients to bring their cherished visions to life. We work to craft not just events, but meaningful experiences, leaving lasting impressions."
-"We handle the intricate details so you can immerse yourself in the joy of the moment
+              At Taraang Events, we believe that every event is a canvas for
+              creating unforgettable memories. Our passion lies in blending{" "}
+              <span className="text-primary font-semibold">local tradition</span> with{" "}
+              <span className="text-primary font-semibold">modern innovation</span>,
+              ensuring each celebration is both authentic and spectacular. With a
+              foundation built on{" "}
+              <span className="text-primary font-semibold">professionalism</span>,
+              boundless{" "}
+              <span className="text-primary font-semibold">creativity</span>, and
+              deep-seated{" "}
+              <span className="text-primary font-semibold">cultural expertise</span>, we
+              have earned the trust of our clients to bring their cherished
+              visions to life. We work to craft not just events, but meaningful
+              experiences, leaving lasting impressions. We handle the intricate
+              details so you can immerse yourself in the joy of the moment.
             </p>
-             <p className="mt-4 text-lg text-muted-foreground">
-              We believe every event tells a unique story, and we are committed to making yours exceptional.
+            <p className="mt-4 text-lg text-muted-foreground">
+              We believe every event tells a unique story, and we are committed
+              to making yours exceptional.
             </p>
           </div>
           <div className="order-1 md:order-2">
-             <Image
+            <Image
               src="https://picsum.photos/seed/aboutus/600/600"
               alt="Team discussing event plans"
               width={600}
