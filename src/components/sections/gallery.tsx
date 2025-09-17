@@ -48,14 +48,14 @@ const Gallery = () => {
       <div className="container">
         <div className="text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">
-            Our Gallery
+            Event Gallery Showcase
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            A glimpse into the unforgettable moments we've crafted.
+            Explore a curated collection of our finest work and draw inspiration for your next event.
           </p>
           <Button onClick={handleLayout} disabled={isPending} className="mt-6">
             <Sparkles className="mr-2 h-4 w-4" />
-            {isPending ? "Designing..." : "AI Layout Assistant"}
+            {isPending ? "Generating..." : "Ask AI to Redesign"}
           </Button>
         </div>
         
