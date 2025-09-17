@@ -55,7 +55,7 @@ const Gallery = () => {
           </p>
           <Button onClick={handleLayout} disabled={isPending} className="mt-6">
             <Sparkles className="mr-2 h-4 w-4" />
-            {isPending ? "Designing..." : "Ask AI to Layout"}
+            {isPending ? "Designing..." : "AI Layout Assistant"}
           </Button>
         </div>
         
