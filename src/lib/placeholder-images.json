@@ -1,3 +1,71 @@
+
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-1",
+      "description": "A beautifully decorated event space ready for a celebration.",
+      "imageUrl": "https://picsum.photos/seed/hero1/1920/1080",
+      "imageHint": "event planning festive"
+    },
+    {
+      "id": "service-wedding",
+      "description": "An elegant Indian wedding ceremony setup.",
+      "imageUrl": "https://picsum.photos/seed/wedding1/600/400",
+      "imageHint": "indian wedding"
+    },
+    {
+      "id": "service-corporate",
+      "description": "A professional setup for a corporate event or conference.",
+      "imageUrl": "https://picsum.photos/seed/corporate1/600/400",
+      "imageHint": "corporate event"
+    },
+    {
+      "id": "service-party",
+      "description": "A lively party reception with guests dancing.",
+      "imageUrl": "https://picsum.photos/seed/party1/600/400",
+      "imageHint": "party reception"
+    },
+    {
+      "id": "service-indian-event",
+      "description": "A vibrant celebration of an Indian festival.",
+      "imageUrl": "https://picsum.photos/seed/indianfest1/600/400",
+      "imageHint": "indian festival"
+    },
+    {
+      "id": "gallery-1",
+      "description": "A candid moment from an Indian marriage ceremony.",
+      "imageUrl": "https://picsum.photos/seed/gallery1/600/400",
+      "imageHint": "indian marriage"
+    },
+    {
+      "id": "gallery-2",
+      "description": "Elaborate floral decoration at an event.",
+      "imageUrl": "https://picsum.photos/seed/gallery2/600/400",
+      "imageHint": "event decoration"
+    },
+    {
+      "id": "gallery-3",
+      "description": "Happy guests at a wedding reception.",
+      "imageUrl": "https://picsum.photos/seed/gallery3/600/400",
+      "imageHint": "wedding guests"
+    },
+    {
+      "id": "gallery-4",
+      "description": "A delicious spread of food at an event.",
+      "imageUrl": "https://picsum.photos/seed/gallery4/600/400",
+      "imageHint": "event catering"
+    },
+    {
+      "id": "gallery-5",
+      "description": "Guests dancing during a Sangeet ceremony.",
+      "imageUrl": "https://picsum.photos/seed/gallery5/600/400",
+      "imageHint": "sangeet ceremony"
+    },
+    {
+      "id": "gallery-6",
+      "description": "Intricate Mehendi art on a bride's hands.",
+      "imageUrl": "https://picsum.photos/seed/gallery6/600/400",
+      "imageHint": "mehendi art"
+    }
+  ]
 }
