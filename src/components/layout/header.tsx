@@ -26,15 +26,15 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground" style={{ backgroundColor: '#002080' }}>
+    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground" style={{ backgroundColor: '#3366ff' }}>
       <div className="container flex items-center justify-between h-16">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.png"
               alt="Taraang Events Logo"
-              width={48}
-              height={48}
+              width={98}
+              height={98}
               priority
               className="drop-shadow-lg"
             />
@@ -69,7 +69,7 @@ export default function Header() {
               </Button>
             </SheetTrigger>
 
-            <SheetContent side="right" className="pr-0 bg-primary text-primary-foreground border-l-0" style={{ backgroundColor: '#002080' }}>
+            <SheetContent side="right" className="pr-0 bg-primary text-primary-foreground border-l-0" style={{ backgroundColor: '#3366ff' }}>
                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                <SheetDescription className="sr-only">
                  A menu of links to navigate the site.
