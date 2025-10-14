@@ -1,32 +1,33 @@
-"use client";
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const Hero = () => {
-    return (
-        <section
-            id="home"
-            className="relative flex items-center justify-center h-[calc(100vh-4rem)] w-full overflow-hidden bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#95ceff] via-[#bb74fb] to-[#fc2994]"
-        >
-            {/* The diagonal "stripe" effect using absolutely positioned colored div */}
-            <div className="absolute left-[-20vw] top-[-15vh] w-[140vw] h-[70vh] rotate-[-12deg] bg-gradient-to-r from-[#bb74fb] via-[#fc2994] to-[#fff] opacity-[0.86] pointer-events-none shadow-2xl" />
+    const heroImage = PlaceHolderImages.find((img) => img.id === "hero-1");
 
-            <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-6">
-                <h1 className="font-headline text-[2.8rem] md:text-[5rem] lg:text-[6rem] font-extrabold tracking-tight text-black drop-shadow-xl">
-                    Crafting  Memories
-                    <span className="block bg-gradient-to-r from-[black] to-[black] bg-clip-text text-transparent">
-           That Last Forever
-          </span>
+    return (
+        <section id="home" className="relative h-[calc(100vh-4rem)] w-full">
+            {heroImage && (
+                <Image
+                    src={heroImage.imageUrl}
+                    alt={heroImage.description}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={heroImage.imageHint}
+                    priority
+                />
+            )}
+            <div className="absolute inset-0 bg-black/50" />
+            <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
+                <h1 className="font-headline text-5xl font-bold tracking-tight md:text-7xl lg:text-8xl">
+                    Crafting Memories That Last Forver
                 </h1>
-                <p className="mt-4 max-w-2xl text-lg md:text-2xl text-black/90 font-medium">
+                <p className="mt-4 max-w-2xl text-lg md:text-xl">
                     From weddings to corporate celebrations, Taraang Events brings your vision to life.
                 </p>
-                <Button
-                    asChild
-                    className="mt-10 px-10 py-4 text-lg rounded-full bg-gradient-to-r from-[red] to-[#fc2994] text-white shadow-2xl border-0 font-semibold transition-all duration-300 hover:brightness-110 hover:scale-105"
-                    size="lg"
-                >
-                    <Link href="#contact">Plan your Event</Link>
+                <Button asChild className="mt-8" size="lg">
+                    <Link href="#contact">Plan you Event</Link>
                 </Button>
             </div>
         </section>

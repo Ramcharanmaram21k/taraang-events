@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         // Email content/options
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            to: 'ramcharan.maram26@gmail.com', // Destination admin email
+            to: 'tarangevents25@gmail.com', // Destination admin email
             subject: `New Contact Form Submission - ${eventType} Event`,
             html: `
         <div style="font-family: Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
