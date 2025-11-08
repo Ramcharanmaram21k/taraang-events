@@ -7,8 +7,8 @@ import { Toaster } from 'react-hot-toast';
 const contactDetails = [
     {
         name: "K. Ramakrishna",
-        phone: "9010634448",
-        role: "Event Manager",
+        phone: "9494555291",
+        role: "Director",
     },
 
 ];
