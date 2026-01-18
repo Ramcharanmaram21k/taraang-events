@@ -11,6 +11,12 @@ const contactDetails = [
         role: "Director",
     },
 
+    {
+        name: "P.Sai",
+        phone: "9666554474",
+        role: "Director",
+    },
+
 ];
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
