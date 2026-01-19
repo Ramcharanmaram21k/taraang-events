@@ -84,6 +84,21 @@ export default function AdminDashboardPage() {
   const [extraCharges, setExtraCharges] = useState<ExtraCharge[]>([]);
   const [newItemName, setNewItemName] = useState("");
   const [newItemAmount, setNewItemAmount] = useState<number | "">("");
+  
+  // Custom input state for "Other" options
+  const [customInputs, setCustomInputs] = useState<Record<string, string>>({
+    vegSweet: "",
+    vegHotItem: "",
+    vegPappu: "",
+    vegCurry: "",
+    vegFry: "",
+    vegPickle: "",
+    vegIceCream: "",
+    nonVegStarter: "",
+    nonVegGravy: "",
+    nonVegFry: "",
+    nonVegBiryani: "",
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -179,6 +194,16 @@ export default function AdminDashboardPage() {
       .join(", ");
   };
 
+  // Helper function to filter out "Other" from arrays when displaying
+  const filterOther = (items: string[]): string[] => {
+    return items.filter(item => item !== "Other" && item.trim() !== "");
+  };
+
+  // Helper function to get display value (removes "Other" if present)
+  const getDisplayValue = (value: string): string => {
+    return value === "Other" ? "" : value;
+  };
+
   const generateSummaryText = () => {
     let summary = `*SS TARAANG EVENTS - INVOICE*\n\n`;
     summary += `📅 *Event Details*\n`;
@@ -204,23 +229,34 @@ export default function AdminDashboardPage() {
     summary += `\n`;
 
     summary += `🥗 *Veg Menu*\n`;
-    if (formData.vegMenu.sweet.length > 0) summary += `Sweet: ${formData.vegMenu.sweet.join(", ")}\n`;
-    if (formData.vegMenu.hotItem.length > 0) summary += `Hot Item: ${formData.vegMenu.hotItem.join(", ")}\n`;
-    if (formData.vegMenu.pappu) summary += `Pappu: ${formData.vegMenu.pappu}\n`;
-    if (formData.vegMenu.curry.length > 0) summary += `Curry: ${formData.vegMenu.curry.join(", ")}\n`;
-    if (formData.vegMenu.fry) summary += `Fry: ${formData.vegMenu.fry}\n`;
-    if (formData.vegMenu.pickle) summary += `Pickle: ${formData.vegMenu.pickle}\n`;
+    const vegSweets = filterOther(formData.vegMenu.sweet);
+    if (vegSweets.length > 0) summary += `Sweet: ${vegSweets.join(", ")}\n`;
+    const vegHotItems = filterOther(formData.vegMenu.hotItem);
+    if (vegHotItems.length > 0) summary += `Hot Item: ${vegHotItems.join(", ")}\n`;
+    const vegPappu = getDisplayValue(formData.vegMenu.pappu);
+    if (vegPappu) summary += `Pappu: ${vegPappu}\n`;
+    const vegCurries = filterOther(formData.vegMenu.curry);
+    if (vegCurries.length > 0) summary += `Curry: ${vegCurries.join(", ")}\n`;
+    const vegFry = getDisplayValue(formData.vegMenu.fry);
+    if (vegFry) summary += `Fry: ${vegFry}\n`;
+    const vegPickle = getDisplayValue(formData.vegMenu.pickle);
+    if (vegPickle) summary += `Pickle: ${vegPickle}\n`;
     const staples = getSelectedStaples();
     if (staples) summary += `Staples: ${staples}\n`;
     if (formData.vegMenu.iceCream) {
-      summary += `Ice Cream: ${formData.vegMenu.iceCreamFlavor || "Yes"}\n`;
+      const iceCreamFlavor = getDisplayValue(formData.vegMenu.iceCreamFlavor);
+      summary += `Ice Cream: ${iceCreamFlavor || "Yes"}\n`;
     }
 
     summary += `\n🍗 *Non-Veg Menu*\n`;
-    if (formData.nonVegMenu.starter) summary += `Starter: ${formData.nonVegMenu.starter}\n`;
-    if (formData.nonVegMenu.gravy.length > 0) summary += `Gravy: ${formData.nonVegMenu.gravy.join(", ")}\n`;
-    if (formData.nonVegMenu.fry) summary += `Fry: ${formData.nonVegMenu.fry}\n`;
-    if (formData.nonVegMenu.biryani) summary += `Biryani: ${formData.nonVegMenu.biryani}\n`;
+    const nonVegStarter = getDisplayValue(formData.nonVegMenu.starter);
+    if (nonVegStarter) summary += `Starter: ${nonVegStarter}\n`;
+    const nonVegGravies = filterOther(formData.nonVegMenu.gravy);
+    if (nonVegGravies.length > 0) summary += `Gravy: ${nonVegGravies.join(", ")}\n`;
+    const nonVegFry = getDisplayValue(formData.nonVegMenu.fry);
+    if (nonVegFry) summary += `Fry: ${nonVegFry}\n`;
+    const nonVegBiryani = getDisplayValue(formData.nonVegMenu.biryani);
+    if (nonVegBiryani) summary += `Biryani: ${nonVegBiryani}\n`;
 
     summary += `\n━━━━━━━━━━━━━━━━\n`;
     summary += `*GRAND TOTAL: ${formatCurrency(grandTotal)}*`;
@@ -269,27 +305,28 @@ export default function AdminDashboardPage() {
       replaceRupeeInTextNodes(clonedNode);
       
       // ==========================================
-      // FIX 2: REMOVE LOGO COMPLETELY FROM PDF
-      // ==========================================
-      const logoContainer = clonedNode.querySelector('[data-pdf-logo]') as HTMLElement;
-      if (logoContainer) {
-        logoContainer.style.cssText = `display: none !important;`;
-      }
-      
-      // ==========================================
-      // FIX 3: HIDE "ADD ITEMS" INPUT FORM IN PDF
-      // ==========================================
-      const addItemsForm = clonedNode.querySelector('.hide-in-pdf') as HTMLElement;
-      if (addItemsForm) {
-        addItemsForm.style.cssText = `display: none !important;`;
-      }
-      
-      // ==========================================
-      // FIX 4: UPDATE COMPANY NAME TO "SS TARAANG EVENTS"
+      // HIDE REDUNDANT TEXT HEADER AND OTHER ELEMENTS
       // ==========================================
       const companyTitle = clonedNode.querySelector('[data-company-title]') as HTMLElement;
       if (companyTitle) {
-        companyTitle.textContent = "SS TARAANG EVENTS";
+        companyTitle.style.cssText = `display: none !important;`;
+      }
+      
+      // Also hide the tagline paragraph if it exists right after the title
+      const headerSection = clonedNode.querySelector('.text-center') as HTMLElement;
+      if (headerSection) {
+        headerSection.style.cssText += `text-align: center !important;`;
+        // Hide tagline paragraph if it's the next sibling
+        const tagline = headerSection.querySelector('p.text-slate-500');
+        if (tagline) {
+          (tagline as HTMLElement).style.cssText = `display: none !important;`;
+        }
+      }
+      
+      // Hide "ADD ITEMS" INPUT FORM IN PDF
+      const addItemsForm = clonedNode.querySelector('.hide-in-pdf') as HTMLElement;
+      if (addItemsForm) {
+        addItemsForm.style.cssText = `display: none !important;`;
       }
       
       // ==========================================
@@ -312,7 +349,61 @@ export default function AdminDashboardPage() {
       // Append to body first to get accurate scrollHeight
       document.body.appendChild(clonedNode);
       
-      // Wait for DOM to update and images to load
+      // ==========================================
+      // FIX 2: REPLACEMENT STRATEGY FOR LOGO IN PDF (PREVENT ALL CLIPPING)
+      // ==========================================
+      // Find the Logo Container and replace with fresh image (after appending to DOM)
+      const logoContainer = clonedNode.querySelector('[data-pdf-logo]') as HTMLElement;
+      if (logoContainer) {
+        // Get the logo URL from the existing image or use the known path
+        const existingImg = logoContainer.querySelector('img') as HTMLImageElement;
+        const logoUrl = existingImg?.src || existingImg?.getAttribute('src') || window.location.origin + '/new-logo.png';
+        
+        // Clear the container completely
+        logoContainer.innerHTML = '';
+        
+        // Remove all classes and styles to start fresh
+        logoContainer.removeAttribute('class');
+        logoContainer.setAttribute('style', '');
+        
+        // Style the container
+        logoContainer.style.cssText = `
+          width: 100% !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          overflow: visible !important;
+          padding: 20px 0 !important;
+          margin: 0 auto !important;
+          background: transparent !important;
+        `;
+        
+        // Create a fresh image element programmatically
+        const freshImg = document.createElement('img');
+        freshImg.src = logoUrl;
+        freshImg.alt = 'Taraang Events Logo';
+        freshImg.style.width = '300px';
+        freshImg.style.height = 'auto';
+        freshImg.style.objectFit = 'contain';
+        freshImg.style.margin = '0 auto';
+        freshImg.style.display = 'block';
+        freshImg.style.maxWidth = '100%';
+        
+        // Append the fresh image to the cleared container
+        logoContainer.appendChild(freshImg);
+        
+        // Wait for image to load before capturing
+        await new Promise((resolve) => {
+          if (freshImg.complete) {
+            resolve(null);
+          } else {
+            freshImg.onload = () => resolve(null);
+            freshImg.onerror = () => resolve(null); // Continue even if image fails to load
+          }
+        });
+      }
+      
+      // Wait for DOM to update
       await new Promise(resolve => setTimeout(resolve, 100));
       
       // ==========================================
@@ -329,7 +420,7 @@ export default function AdminDashboardPage() {
         backgroundColor: "#ffffff",
         width: fullWidth,
         height: fullHeight,
-        windowWidth: fullWidth,
+        windowWidth: 1200, // Force desktop viewport for enough room for logo
         windowHeight: fullHeight,
         scrollX: 0,
         scrollY: 0,
@@ -607,24 +698,68 @@ export default function AdminDashboardPage() {
                     <div className="space-y-2">
                       <Label className="text-slate-600">Sweets (Select up to 2)</Label>
                       <MultiSelectCurry
-                        options={vegSweets}
+                        options={[...vegSweets, "Other"]}
                         selected={formData.vegMenu.sweet}
-                        onChange={(selected) => updateVegMenu("sweet", selected)}
+                        onChange={(selected) => {
+                          // If "Other" was removed, clear custom input
+                          if (!selected.includes("Other") && formData.vegMenu.sweet.includes("Other")) {
+                            setCustomInputs(prev => ({ ...prev, vegSweet: "" }));
+                          }
+                          updateVegMenu("sweet", selected);
+                        }}
                         placeholder="Select sweets..."
                         maxSelections={2}
                         itemLabel="sweets"
                       />
+                      {formData.vegMenu.sweet.includes("Other") && (
+                        <Input
+                          placeholder="Type your own sweet..."
+                          value={customInputs.vegSweet}
+                          onChange={(e) => {
+                            const customValue = e.target.value;
+                            setCustomInputs(prev => ({ ...prev, vegSweet: customValue }));
+                            // Replace "Other" with custom text in the array
+                            const updated = formData.vegMenu.sweet.map(item => 
+                              item === "Other" ? (customValue || "Other") : item
+                            );
+                            updateVegMenu("sweet", updated);
+                          }}
+                          className="h-11 mt-2"
+                        />
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label className="text-slate-600">Hot Items (Select up to 2)</Label>
                       <MultiSelectCurry
-                        options={vegHotItems}
+                        options={[...vegHotItems, "Other"]}
                         selected={formData.vegMenu.hotItem}
-                        onChange={(selected) => updateVegMenu("hotItem", selected)}
+                        onChange={(selected) => {
+                          // If "Other" was removed, clear custom input
+                          if (!selected.includes("Other") && formData.vegMenu.hotItem.includes("Other")) {
+                            setCustomInputs(prev => ({ ...prev, vegHotItem: "" }));
+                          }
+                          updateVegMenu("hotItem", selected);
+                        }}
                         placeholder="Select hot items..."
                         maxSelections={2}
                         itemLabel="hot items"
                       />
+                      {formData.vegMenu.hotItem.includes("Other") && (
+                        <Input
+                          placeholder="Type your own hot item..."
+                          value={customInputs.vegHotItem}
+                          onChange={(e) => {
+                            const customValue = e.target.value;
+                            setCustomInputs(prev => ({ ...prev, vegHotItem: customValue }));
+                            // Replace "Other" with custom text in the array
+                            const updated = formData.vegMenu.hotItem.map(item => 
+                              item === "Other" ? (customValue || "Other") : item
+                            );
+                            updateVegMenu("hotItem", updated);
+                          }}
+                          className="h-11 mt-2"
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -639,7 +774,14 @@ export default function AdminDashboardPage() {
                         <Label className="text-slate-600 text-sm">Pappu</Label>
                         <Select
                           value={formData.vegMenu.pappu}
-                          onValueChange={(value) => updateVegMenu("pappu", value)}
+                          onValueChange={(value) => {
+                            if (value === "Other") {
+                              updateVegMenu("pappu", "Other");
+                            } else {
+                              updateVegMenu("pappu", value);
+                              setCustomInputs(prev => ({ ...prev, vegPappu: "" }));
+                            }
+                          }}
                         >
                           <SelectTrigger className="h-11">
                             <SelectValue placeholder="Select pappu" />
@@ -650,25 +792,67 @@ export default function AdminDashboardPage() {
                                 {item}
                               </SelectItem>
                             ))}
+                            <SelectItem value="Other">Other...</SelectItem>
                           </SelectContent>
                         </Select>
+                        {formData.vegMenu.pappu === "Other" && (
+                          <Input
+                            placeholder="Type your own pappu..."
+                            value={customInputs.vegPappu}
+                            onChange={(e) => {
+                              const customValue = e.target.value;
+                              setCustomInputs(prev => ({ ...prev, vegPappu: customValue }));
+                              updateVegMenu("pappu", customValue || "Other");
+                            }}
+                            className="h-11 mt-2"
+                          />
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-slate-600 text-sm">Curry (Select up to 2)</Label>
                         <MultiSelectCurry
-                          options={vegCurry}
+                          options={[...vegCurry, "Other"]}
                           selected={formData.vegMenu.curry}
-                          onChange={(selected) => updateVegMenu("curry", selected)}
+                          onChange={(selected) => {
+                            // If "Other" was removed, clear custom input
+                            if (!selected.includes("Other") && formData.vegMenu.curry.includes("Other")) {
+                              setCustomInputs(prev => ({ ...prev, vegCurry: "" }));
+                            }
+                            updateVegMenu("curry", selected);
+                          }}
                           placeholder="Select curries..."
                           maxSelections={2}
                           itemLabel="curries"
                         />
+                        {formData.vegMenu.curry.includes("Other") && (
+                          <Input
+                            placeholder="Type your own curry..."
+                            value={customInputs.vegCurry}
+                            onChange={(e) => {
+                              const customValue = e.target.value;
+                              setCustomInputs(prev => ({ ...prev, vegCurry: customValue }));
+                              // Replace "Other" with custom text in the array
+                              const updated = formData.vegMenu.curry.map(item => 
+                                item === "Other" ? (customValue || "Other") : item
+                              );
+                              updateVegMenu("curry", updated);
+                            }}
+                            className="h-11 mt-2"
+                          />
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-slate-600 text-sm">Fry</Label>
                         <Select
                           value={formData.vegMenu.fry}
-                          onValueChange={(value) => updateVegMenu("fry", value)}
+                          onValueChange={(value) => {
+                            if (value === "Other") {
+                              updateVegMenu("fry", "Other");
+                            } else {
+                              updateVegMenu("fry", value);
+                              setCustomInputs(prev => ({ ...prev, vegFry: "" }));
+                            }
+                          }}
                         >
                           <SelectTrigger className="h-11">
                             <SelectValue placeholder="Select fry" />
@@ -679,14 +863,34 @@ export default function AdminDashboardPage() {
                                 {item}
                               </SelectItem>
                             ))}
+                            <SelectItem value="Other">Other...</SelectItem>
                           </SelectContent>
                         </Select>
+                        {formData.vegMenu.fry === "Other" && (
+                          <Input
+                            placeholder="Type your own fry..."
+                            value={customInputs.vegFry}
+                            onChange={(e) => {
+                              const customValue = e.target.value;
+                              setCustomInputs(prev => ({ ...prev, vegFry: customValue }));
+                              updateVegMenu("fry", customValue || "Other");
+                            }}
+                            className="h-11 mt-2"
+                          />
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-slate-600 text-sm">Pickle</Label>
                         <Select
                           value={formData.vegMenu.pickle}
-                          onValueChange={(value) => updateVegMenu("pickle", value)}
+                          onValueChange={(value) => {
+                            if (value === "Other") {
+                              updateVegMenu("pickle", "Other");
+                            } else {
+                              updateVegMenu("pickle", value);
+                              setCustomInputs(prev => ({ ...prev, vegPickle: "" }));
+                            }
+                          }}
                         >
                           <SelectTrigger className="h-11">
                             <SelectValue placeholder="Select pickle" />
@@ -697,8 +901,21 @@ export default function AdminDashboardPage() {
                                 {item}
                               </SelectItem>
                             ))}
+                            <SelectItem value="Other">Other...</SelectItem>
                           </SelectContent>
                         </Select>
+                        {formData.vegMenu.pickle === "Other" && (
+                          <Input
+                            placeholder="Type your own pickle..."
+                            value={customInputs.vegPickle}
+                            onChange={(e) => {
+                              const customValue = e.target.value;
+                              setCustomInputs(prev => ({ ...prev, vegPickle: customValue }));
+                              updateVegMenu("pickle", customValue || "Other");
+                            }}
+                            className="h-11 mt-2"
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -749,7 +966,14 @@ export default function AdminDashboardPage() {
                         <Label className="text-slate-600 text-sm">Select Flavor</Label>
                         <Select
                           value={formData.vegMenu.iceCreamFlavor}
-                          onValueChange={(value) => updateVegMenu("iceCreamFlavor", value)}
+                          onValueChange={(value) => {
+                            if (value === "Other") {
+                              updateVegMenu("iceCreamFlavor", "Other");
+                            } else {
+                              updateVegMenu("iceCreamFlavor", value);
+                              setCustomInputs(prev => ({ ...prev, vegIceCream: "" }));
+                            }
+                          }}
                         >
                           <SelectTrigger className="h-11 mt-2 bg-white">
                             <SelectValue placeholder="Choose flavor" />
@@ -760,8 +984,21 @@ export default function AdminDashboardPage() {
                                 {flavor}
                               </SelectItem>
                             ))}
+                            <SelectItem value="Other">Other...</SelectItem>
                           </SelectContent>
                         </Select>
+                        {formData.vegMenu.iceCreamFlavor === "Other" && (
+                          <Input
+                            placeholder="Type your own flavor..."
+                            value={customInputs.vegIceCream}
+                            onChange={(e) => {
+                              const customValue = e.target.value;
+                              setCustomInputs(prev => ({ ...prev, vegIceCream: customValue }));
+                              updateVegMenu("iceCreamFlavor", customValue || "Other");
+                            }}
+                            className="h-11 mt-2"
+                          />
+                        )}
                       </div>
                     )}
                   </div>
@@ -774,7 +1011,14 @@ export default function AdminDashboardPage() {
                       <Label className="text-slate-600">Starters</Label>
                       <Select
                         value={formData.nonVegMenu.starter}
-                        onValueChange={(value) => updateNonVegMenu("starter", value)}
+                        onValueChange={(value) => {
+                          if (value === "Other") {
+                            updateNonVegMenu("starter", "Other");
+                          } else {
+                            updateNonVegMenu("starter", value);
+                            setCustomInputs(prev => ({ ...prev, nonVegStarter: "" }));
+                          }
+                        }}
                       >
                         <SelectTrigger className="h-11">
                           <SelectValue placeholder="Select starter" />
@@ -785,19 +1029,54 @@ export default function AdminDashboardPage() {
                               {item}
                             </SelectItem>
                           ))}
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
+                      {formData.nonVegMenu.starter === "Other" && (
+                        <Input
+                          placeholder="Type your own starter..."
+                          value={customInputs.nonVegStarter}
+                          onChange={(e) => {
+                            const customValue = e.target.value;
+                            setCustomInputs(prev => ({ ...prev, nonVegStarter: customValue }));
+                            updateNonVegMenu("starter", customValue || "Other");
+                          }}
+                          className="h-11 mt-2"
+                        />
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label className="text-slate-600">Gravy (Select up to 2)</Label>
                       <MultiSelectCurry
-                        options={nonVegGravy}
+                        options={[...nonVegGravy, "Other"]}
                         selected={formData.nonVegMenu.gravy}
-                        onChange={(selected) => updateNonVegMenu("gravy", selected)}
+                        onChange={(selected) => {
+                          // If "Other" was removed, clear custom input
+                          if (!selected.includes("Other") && formData.nonVegMenu.gravy.includes("Other")) {
+                            setCustomInputs(prev => ({ ...prev, nonVegGravy: "" }));
+                          }
+                          updateNonVegMenu("gravy", selected);
+                        }}
                         placeholder="Select gravies..."
                         maxSelections={2}
                         itemLabel="gravies"
                       />
+                      {formData.nonVegMenu.gravy.includes("Other") && (
+                        <Input
+                          placeholder="Type your own gravy..."
+                          value={customInputs.nonVegGravy}
+                          onChange={(e) => {
+                            const customValue = e.target.value;
+                            setCustomInputs(prev => ({ ...prev, nonVegGravy: customValue }));
+                            // Replace "Other" with custom text in the array
+                            const updated = formData.nonVegMenu.gravy.map(item => 
+                              item === "Other" ? (customValue || "Other") : item
+                            );
+                            updateNonVegMenu("gravy", updated);
+                          }}
+                          className="h-11 mt-2"
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -805,7 +1084,14 @@ export default function AdminDashboardPage() {
                       <Label className="text-slate-600">Fry</Label>
                       <Select
                         value={formData.nonVegMenu.fry}
-                        onValueChange={(value) => updateNonVegMenu("fry", value)}
+                        onValueChange={(value) => {
+                          if (value === "Other") {
+                            updateNonVegMenu("fry", "Other");
+                          } else {
+                            updateNonVegMenu("fry", value);
+                            setCustomInputs(prev => ({ ...prev, nonVegFry: "" }));
+                          }
+                        }}
                       >
                         <SelectTrigger className="h-11">
                           <SelectValue placeholder="Select fry" />
@@ -816,14 +1102,34 @@ export default function AdminDashboardPage() {
                               {item}
                             </SelectItem>
                           ))}
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
+                      {formData.nonVegMenu.fry === "Other" && (
+                        <Input
+                          placeholder="Type your own fry..."
+                          value={customInputs.nonVegFry}
+                          onChange={(e) => {
+                            const customValue = e.target.value;
+                            setCustomInputs(prev => ({ ...prev, nonVegFry: customValue }));
+                            updateNonVegMenu("fry", customValue || "Other");
+                          }}
+                          className="h-11 mt-2"
+                        />
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label className="text-slate-600">Biryani</Label>
                       <Select
                         value={formData.nonVegMenu.biryani}
-                        onValueChange={(value) => updateNonVegMenu("biryani", value)}
+                        onValueChange={(value) => {
+                          if (value === "Other") {
+                            updateNonVegMenu("biryani", "Other");
+                          } else {
+                            updateNonVegMenu("biryani", value);
+                            setCustomInputs(prev => ({ ...prev, nonVegBiryani: "" }));
+                          }
+                        }}
                       >
                         <SelectTrigger className="h-11">
                           <SelectValue placeholder="Select biryani" />
@@ -834,8 +1140,21 @@ export default function AdminDashboardPage() {
                               {item}
                             </SelectItem>
                           ))}
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
+                      {formData.nonVegMenu.biryani === "Other" && (
+                        <Input
+                          placeholder="Type your own biryani..."
+                          value={customInputs.nonVegBiryani}
+                          onChange={(e) => {
+                            const customValue = e.target.value;
+                            setCustomInputs(prev => ({ ...prev, nonVegBiryani: customValue }));
+                            updateNonVegMenu("biryani", customValue || "Other");
+                          }}
+                          className="h-11 mt-2"
+                        />
+                      )}
                     </div>
                   </div>
                 </TabsContent>
@@ -991,15 +1310,15 @@ export default function AdminDashboardPage() {
                       Veg Items
                     </h4>
                     <ul className="text-sm space-y-1 text-slate-600">
-                      {formData.vegMenu.sweet.length > 0 && <li>Sweet: {formData.vegMenu.sweet.join(", ")}</li>}
-                      {formData.vegMenu.hotItem.length > 0 && <li>Hot Item: {formData.vegMenu.hotItem.join(", ")}</li>}
-                      {formData.vegMenu.pappu && <li>Pappu: {formData.vegMenu.pappu}</li>}
-                      {formData.vegMenu.curry.length > 0 && <li>Curry: {formData.vegMenu.curry.join(", ")}</li>}
-                      {formData.vegMenu.fry && <li>Fry: {formData.vegMenu.fry}</li>}
-                      {formData.vegMenu.pickle && <li>Pickle: {formData.vegMenu.pickle}</li>}
+                      {filterOther(formData.vegMenu.sweet).length > 0 && <li>Sweet: {filterOther(formData.vegMenu.sweet).join(", ")}</li>}
+                      {filterOther(formData.vegMenu.hotItem).length > 0 && <li>Hot Item: {filterOther(formData.vegMenu.hotItem).join(", ")}</li>}
+                      {getDisplayValue(formData.vegMenu.pappu) && <li>Pappu: {getDisplayValue(formData.vegMenu.pappu)}</li>}
+                      {filterOther(formData.vegMenu.curry).length > 0 && <li>Curry: {filterOther(formData.vegMenu.curry).join(", ")}</li>}
+                      {getDisplayValue(formData.vegMenu.fry) && <li>Fry: {getDisplayValue(formData.vegMenu.fry)}</li>}
+                      {getDisplayValue(formData.vegMenu.pickle) && <li>Pickle: {getDisplayValue(formData.vegMenu.pickle)}</li>}
                       {getSelectedStaples() && <li>Staples: {getSelectedStaples()}</li>}
                       {formData.vegMenu.iceCream && (
-                        <li>Ice Cream: {formData.vegMenu.iceCreamFlavor || "Yes"}</li>
+                        <li>Ice Cream: {getDisplayValue(formData.vegMenu.iceCreamFlavor) || "Yes"}</li>
                       )}
                     </ul>
                   </div>
@@ -1011,13 +1330,13 @@ export default function AdminDashboardPage() {
                       Non-Veg Items
                     </h4>
                     <ul className="text-sm space-y-1 text-slate-600">
-                      {formData.nonVegMenu.starter && (
-                        <li>Starter: {formData.nonVegMenu.starter}</li>
+                      {getDisplayValue(formData.nonVegMenu.starter) && (
+                        <li>Starter: {getDisplayValue(formData.nonVegMenu.starter)}</li>
                       )}
-                      {formData.nonVegMenu.gravy.length > 0 && <li>Gravy: {formData.nonVegMenu.gravy.join(", ")}</li>}
-                      {formData.nonVegMenu.fry && <li>Fry: {formData.nonVegMenu.fry}</li>}
-                      {formData.nonVegMenu.biryani && (
-                        <li>Biryani: {formData.nonVegMenu.biryani}</li>
+                      {filterOther(formData.nonVegMenu.gravy).length > 0 && <li>Gravy: {filterOther(formData.nonVegMenu.gravy).join(", ")}</li>}
+                      {getDisplayValue(formData.nonVegMenu.fry) && <li>Fry: {getDisplayValue(formData.nonVegMenu.fry)}</li>}
+                      {getDisplayValue(formData.nonVegMenu.biryani) && (
+                        <li>Biryani: {getDisplayValue(formData.nonVegMenu.biryani)}</li>
                       )}
                     </ul>
                   </div>
