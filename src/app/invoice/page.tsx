@@ -341,16 +341,14 @@ export default function InvoiceGeneratorPage() {
                   </div>
 
                   {/* Founder Details */}
-                  <div className="text-center mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-300">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
-                      <div className="break-words">
-                        <span className="font-semibold">K.Ramakrishna:</span>{" "}
-                        <span className="text-slate-600">+91 9494555291</span>
-                      </div>
-                      <div className="break-words">
-                        <span className="font-semibold">P.Sai:</span>{" "}
-                        <span className="text-slate-600">+91 9666554474</span>
-                      </div>
+                  <div className="flex justify-between items-center w-full mt-4 px-4 border-b pb-4 mb-4">
+                    <div className="text-left">
+                      <span className="font-bold text-gray-900 block">K. Ramakrishna</span>
+                      <span className="text-gray-600 text-sm">+91 9494555291</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold text-gray-900 block">P. Sai</span>
+                      <span className="text-gray-600 text-sm">+91 9666554474</span>
                     </div>
                   </div>
 

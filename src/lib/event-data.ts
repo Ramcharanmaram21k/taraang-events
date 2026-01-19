@@ -171,22 +171,22 @@ export const nonVegBiryani = [
 
 // Form state types
 export interface VegMenuState {
-  sweet: string[];  // Changed to array for multi-select (max 2)
-  hotItem: string[];  // Changed to array for multi-select (max 2)
-  pappu: string;
-  curry: string[];  // Changed to array for multi-select (max 2)
-  fry: string;
-  pickle: string;
+  sweet: string[];  // Free-text array (up to 10 items)
+  hotItem: string[];  // Free-text array (up to 10 items)
+  pappu: string[];  // Free-text array (up to 10 items)
+  curry: string[];  // Free-text array (up to 10 items)
+  fry: string[];  // Free-text array (up to 10 items)
+  pickle: string[];  // Free-text array (up to 10 items)
   staples: Record<string, boolean>;
   iceCream: boolean;
-  iceCreamFlavor: string;
+  iceCreamFlavor: string[];
 }
 
 export interface NonVegMenuState {
-  starter: string;
-  gravy: string[];  // Changed to array for multi-select (max 2)
-  fry: string;
-  biryani: string;
+  starter: string[];  // Free-text array (up to 10 items)
+  gravy: string[];  // Free-text array (up to 10 items)
+  fry: string[];  // Free-text array (up to 10 items)
+  biryani: string[];  // Free-text array (up to 10 items)
 }
 
 export interface EventFormState {
@@ -195,6 +195,11 @@ export interface EventFormState {
   decorationCharges: number;
   entryCharges: number;
   foodBill: number;
+  functionHallCharges: number;
+  tentHouseCharges: number;
+  photographyCharges: number;
+  lightingCharges: number;
+  flexiBannerCharges: number;
   vegMenu: VegMenuState;
   nonVegMenu: NonVegMenuState;
   customerName: string;
@@ -209,17 +214,22 @@ export const initialFormState: EventFormState = {
   decorationCharges: 0,
   entryCharges: 0,
   foodBill: 0,
+  functionHallCharges: 0,
+  tentHouseCharges: 0,
+  photographyCharges: 0,
+  lightingCharges: 0,
+  flexiBannerCharges: 0,
   customerName: "",
   customerPhone: "",
   eventDate: "",
   guestCount: 0,
   vegMenu: {
-    sweet: [],  // Array for multi-select
-    hotItem: [],  // Array for multi-select
-    pappu: "",
-    curry: [],  // Array for multi-select
-    fry: "",
-    pickle: "",
+    sweet: [],  // Free-text array
+    hotItem: [],  // Free-text array
+    pappu: [],  // Free-text array
+    curry: [],  // Free-text array
+    fry: [],  // Free-text array
+    pickle: [],  // Free-text array
     staples: {
       sambar: false,
       rasam: false,
@@ -229,12 +239,12 @@ export const initialFormState: EventFormState = {
       ghee: false,
     },
     iceCream: false,
-    iceCreamFlavor: "",
+    iceCreamFlavor: [],  // Free-text array
   },
   nonVegMenu: {
-    starter: "",
-    gravy: [],  // Array for multi-select
-    fry: "",
-    biryani: "",
+    starter: [],  // Free-text array
+    gravy: [],  // Free-text array
+    fry: [],  // Free-text array
+    biryani: [],  // Free-text array
   },
 };

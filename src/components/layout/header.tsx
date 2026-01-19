@@ -20,7 +20,6 @@ const navLinks = [
     { href: "#services", label: "Services" },
     { href: "#gallery", label: "Gallery" },
     { href: "#contact", label: "Contact" },
-    { href: "/invoice", label: "Invoice Generator" },
 ];
 
 export default function Header() {

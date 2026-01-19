@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/lib/admin-auth";
 import {
-  venues,
   eventTypes,
   vegSweets,
   vegHotItems,
@@ -111,15 +111,30 @@ export default function AdminDashboardPage() {
     return extraCharges.reduce((sum, item) => sum + item.amount, 0);
   }, [extraCharges]);
 
-  // Calculate grand total (including extra charges)
+  // Calculate grand total (including extra charges and new charge fields)
   const grandTotal = useMemo(() => {
     return (
       (formData.decorationCharges || 0) +
       (formData.entryCharges || 0) +
       (formData.foodBill || 0) +
+      (formData.functionHallCharges || 0) +
+      (formData.tentHouseCharges || 0) +
+      (formData.photographyCharges || 0) +
+      (formData.lightingCharges || 0) +
+      (formData.flexiBannerCharges || 0) +
       extraChargesTotal
     );
-  }, [formData.decorationCharges, formData.entryCharges, formData.foodBill, extraChargesTotal]);
+  }, [
+    formData.decorationCharges,
+    formData.entryCharges,
+    formData.foodBill,
+    formData.functionHallCharges,
+    formData.tentHouseCharges,
+    formData.photographyCharges,
+    formData.lightingCharges,
+    formData.flexiBannerCharges,
+    extraChargesTotal
+  ]);
 
   // Add extra charge
   const handleAddExtraCharge = () => {
@@ -164,6 +179,57 @@ export default function AdminDashboardPage() {
         [key]: value,
       },
     }));
+  };
+
+  // Helper function to add item to a food category array
+  const addFoodItem = (category: keyof VegMenuState | keyof NonVegMenuState, item: string, isVeg: boolean) => {
+    if (!item.trim()) return;
+    
+    if (isVeg) {
+      const currentItems = formData.vegMenu[category as keyof VegMenuState] as string[];
+      if (Array.isArray(currentItems) && currentItems.length < 10) {
+        updateVegMenu(category as string, [...currentItems, item.trim()]);
+      }
+    } else {
+      const currentItems = formData.nonVegMenu[category as keyof NonVegMenuState] as string[];
+      if (Array.isArray(currentItems) && currentItems.length < 10) {
+        updateNonVegMenu(category as string, [...currentItems, item.trim()]);
+      }
+    }
+  };
+
+  // Helper function to remove item from a food category array
+  const removeFoodItem = (category: keyof VegMenuState | keyof NonVegMenuState, index: number, isVeg: boolean) => {
+    if (isVeg) {
+      const currentItems = formData.vegMenu[category as keyof VegMenuState] as string[];
+      if (Array.isArray(currentItems)) {
+        updateVegMenu(category as string, currentItems.filter((_, i) => i !== index));
+      }
+    } else {
+      const currentItems = formData.nonVegMenu[category as keyof NonVegMenuState] as string[];
+      if (Array.isArray(currentItems)) {
+        updateNonVegMenu(category as string, currentItems.filter((_, i) => i !== index));
+      }
+    }
+  };
+
+  // Helper function to update item in a food category array
+  const updateFoodItem = (category: keyof VegMenuState | keyof NonVegMenuState, index: number, value: string, isVeg: boolean) => {
+    if (isVeg) {
+      const currentItems = formData.vegMenu[category as keyof VegMenuState] as string[];
+      if (Array.isArray(currentItems)) {
+        const updated = [...currentItems];
+        updated[index] = value;
+        updateVegMenu(category as string, updated);
+      }
+    } else {
+      const currentItems = formData.nonVegMenu[category as keyof NonVegMenuState] as string[];
+      if (Array.isArray(currentItems)) {
+        const updated = [...currentItems];
+        updated[index] = value;
+        updateNonVegMenu(category as string, updated);
+      }
+    }
   };
 
   const toggleStaple = (stapleId: string) => {
@@ -218,6 +284,11 @@ export default function AdminDashboardPage() {
     summary += `Decoration: ${formatCurrency(formData.decorationCharges)}\n`;
     summary += `Entry: ${formatCurrency(formData.entryCharges)}\n`;
     summary += `Food Bill: ${formatCurrency(formData.foodBill)}\n`;
+    if (formData.functionHallCharges > 0) summary += `Function Hall: ${formatCurrency(formData.functionHallCharges)}\n`;
+    if (formData.tentHouseCharges > 0) summary += `Tent House: ${formatCurrency(formData.tentHouseCharges)}\n`;
+    if (formData.photographyCharges > 0) summary += `Photography: ${formatCurrency(formData.photographyCharges)}\n`;
+    if (formData.lightingCharges > 0) summary += `Lighting: ${formatCurrency(formData.lightingCharges)}\n`;
+    if (formData.flexiBannerCharges > 0) summary += `Flexi / Banner: ${formatCurrency(formData.flexiBannerCharges)}\n`;
     
     // Add extra charges to summary
     if (extraCharges.length > 0) {
@@ -229,34 +300,38 @@ export default function AdminDashboardPage() {
     summary += `\n`;
 
     summary += `🥗 *Veg Menu*\n`;
-    const vegSweets = filterOther(formData.vegMenu.sweet);
-    if (vegSweets.length > 0) summary += `Sweet: ${vegSweets.join(", ")}\n`;
-    const vegHotItems = filterOther(formData.vegMenu.hotItem);
-    if (vegHotItems.length > 0) summary += `Hot Item: ${vegHotItems.join(", ")}\n`;
-    const vegPappu = getDisplayValue(formData.vegMenu.pappu);
-    if (vegPappu) summary += `Pappu: ${vegPappu}\n`;
-    const vegCurries = filterOther(formData.vegMenu.curry);
-    if (vegCurries.length > 0) summary += `Curry: ${vegCurries.join(", ")}\n`;
-    const vegFry = getDisplayValue(formData.vegMenu.fry);
-    if (vegFry) summary += `Fry: ${vegFry}\n`;
-    const vegPickle = getDisplayValue(formData.vegMenu.pickle);
-    if (vegPickle) summary += `Pickle: ${vegPickle}\n`;
+    const vegSweets = formData.vegMenu.sweet.filter(item => item.trim() !== "");
+    if (vegSweets.length > 0) summary += `*Sweets:* ${vegSweets.join(", ")}\n`;
+    const vegHotItems = formData.vegMenu.hotItem.filter(item => item.trim() !== "");
+    if (vegHotItems.length > 0) summary += `*Hot Items:* ${vegHotItems.join(", ")}\n`;
+    const vegPappu = formData.vegMenu.pappu.filter(item => item.trim() !== "");
+    if (vegPappu.length > 0) summary += `*Pappu:* ${vegPappu.join(", ")}\n`;
+    const vegCurries = formData.vegMenu.curry.filter(item => item.trim() !== "");
+    if (vegCurries.length > 0) summary += `*Curry:* ${vegCurries.join(", ")}\n`;
+    const vegFry = formData.vegMenu.fry.filter(item => item.trim() !== "");
+    if (vegFry.length > 0) summary += `*Fry:* ${vegFry.join(", ")}\n`;
+    const vegPickle = formData.vegMenu.pickle.filter(item => item.trim() !== "");
+    if (vegPickle.length > 0) summary += `*Pickle:* ${vegPickle.join(", ")}\n`;
     const staples = getSelectedStaples();
-    if (staples) summary += `Staples: ${staples}\n`;
+    if (staples) summary += `*Staples:* ${staples}\n`;
     if (formData.vegMenu.iceCream) {
-      const iceCreamFlavor = getDisplayValue(formData.vegMenu.iceCreamFlavor);
-      summary += `Ice Cream: ${iceCreamFlavor || "Yes"}\n`;
+      const iceCreamFlavor = formData.vegMenu.iceCreamFlavor.filter(item => item.trim() !== "");
+      if (iceCreamFlavor.length > 0) {
+        summary += `*Ice Cream:* ${iceCreamFlavor.join(", ")}\n`;
+      } else {
+        summary += `*Ice Cream:* Yes\n`;
+      }
     }
 
     summary += `\n🍗 *Non-Veg Menu*\n`;
-    const nonVegStarter = getDisplayValue(formData.nonVegMenu.starter);
-    if (nonVegStarter) summary += `Starter: ${nonVegStarter}\n`;
-    const nonVegGravies = filterOther(formData.nonVegMenu.gravy);
-    if (nonVegGravies.length > 0) summary += `Gravy: ${nonVegGravies.join(", ")}\n`;
-    const nonVegFry = getDisplayValue(formData.nonVegMenu.fry);
-    if (nonVegFry) summary += `Fry: ${nonVegFry}\n`;
-    const nonVegBiryani = getDisplayValue(formData.nonVegMenu.biryani);
-    if (nonVegBiryani) summary += `Biryani: ${nonVegBiryani}\n`;
+    const nonVegStarter = formData.nonVegMenu.starter.filter(item => item.trim() !== "");
+    if (nonVegStarter.length > 0) summary += `*Starters:* ${nonVegStarter.join(", ")}\n`;
+    const nonVegGravies = formData.nonVegMenu.gravy.filter(item => item.trim() !== "");
+    if (nonVegGravies.length > 0) summary += `*Gravy:* ${nonVegGravies.join(", ")}\n`;
+    const nonVegFry = formData.nonVegMenu.fry.filter(item => item.trim() !== "");
+    if (nonVegFry.length > 0) summary += `*Fry:* ${nonVegFry.join(", ")}\n`;
+    const nonVegBiryani = formData.nonVegMenu.biryani.filter(item => item.trim() !== "");
+    if (nonVegBiryani.length > 0) summary += `*Biryani:* ${nonVegBiryani.join(", ")}\n`;
 
     summary += `\n━━━━━━━━━━━━━━━━\n`;
     summary += `*GRAND TOTAL: ${formatCurrency(grandTotal)}*`;
@@ -467,11 +542,23 @@ export default function AdminDashboardPage() {
                 className="object-cover"
               />
             </div>
-            <div>
-              <h1 className="text-lg font-headline font-bold text-slate-800">Admin Dashboard</h1>
-              <p className="text-xs text-slate-500">Taraang Events</p>
-            </div>
+          <div>
+            <h1 className="text-lg font-headline font-bold text-slate-800">Admin Dashboard</h1>
+            <p className="text-xs text-slate-500">Taraang Events</p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="gap-2 text-slate-600 hover:text-blue-600 hover:border-blue-300"
+          >
+            <Link href="/invoice">
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Invoice Generator</span>
+            </Link>
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -481,6 +568,7 @@ export default function AdminDashboardPage() {
             <LogOut className="w-4 h-4" />
             <span className="hidden sm:inline">Logout</span>
           </Button>
+        </div>
         </div>
       </header>
 
@@ -557,21 +645,13 @@ export default function AdminDashboardPage() {
                   <Label className="text-slate-600 flex items-center gap-2">
                     <Building2 className="w-4 h-4" /> Venue
                   </Label>
-                  <Select
+                  <Input
+                    type="text"
                     value={formData.venue}
-                    onValueChange={(value) => setFormData({ ...formData, venue: value })}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Select venue" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {venues.map((venue) => (
-                        <SelectItem key={venue} value={venue}>
-                          {venue}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
+                    placeholder="Enter venue name..."
+                    className="h-11"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-600 flex items-center gap-2">
@@ -606,7 +686,7 @@ export default function AdminDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="decoration" className="text-slate-600">
                     Decoration Charges
@@ -661,6 +741,96 @@ export default function AdminDashboardPage() {
                     />
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="functionHall" className="text-slate-600">
+                    Function Hall Charges
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+                    <Input
+                      id="functionHall"
+                      type="number"
+                      placeholder="0"
+                      value={formData.functionHallCharges || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, functionHallCharges: parseInt(e.target.value) || 0 })
+                      }
+                      className="h-11 pl-8"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tentHouse" className="text-slate-600">
+                    Tent House Charges
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+                    <Input
+                      id="tentHouse"
+                      type="number"
+                      placeholder="0"
+                      value={formData.tentHouseCharges || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, tentHouseCharges: parseInt(e.target.value) || 0 })
+                      }
+                      className="h-11 pl-8"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="photography" className="text-slate-600">
+                    Photography Charges
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+                    <Input
+                      id="photography"
+                      type="number"
+                      placeholder="0"
+                      value={formData.photographyCharges || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, photographyCharges: parseInt(e.target.value) || 0 })
+                      }
+                      className="h-11 pl-8"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lighting" className="text-slate-600">
+                    Lighting Charges
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+                    <Input
+                      id="lighting"
+                      type="number"
+                      placeholder="0"
+                      value={formData.lightingCharges || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, lightingCharges: parseInt(e.target.value) || 0 })
+                      }
+                      className="h-11 pl-8"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="flexiBanner" className="text-slate-600">
+                    Flexi / Banner Charges
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+                    <Input
+                      id="flexiBanner"
+                      type="number"
+                      placeholder="0"
+                      value={formData.flexiBannerCharges || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, flexiBannerCharges: parseInt(e.target.value) || 0 })
+                      }
+                      className="h-11 pl-8"
+                    />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -695,70 +865,110 @@ export default function AdminDashboardPage() {
                 {/* Veg Menu Tab */}
                 <TabsContent value="veg" className="mt-6 space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Sweets */}
                     <div className="space-y-2">
-                      <Label className="text-slate-600">Sweets (Select up to 2)</Label>
-                      <MultiSelectCurry
-                        options={[...vegSweets, "Other"]}
-                        selected={formData.vegMenu.sweet}
-                        onChange={(selected) => {
-                          // If "Other" was removed, clear custom input
-                          if (!selected.includes("Other") && formData.vegMenu.sweet.includes("Other")) {
-                            setCustomInputs(prev => ({ ...prev, vegSweet: "" }));
-                          }
-                          updateVegMenu("sweet", selected);
-                        }}
-                        placeholder="Select sweets..."
-                        maxSelections={2}
-                        itemLabel="sweets"
-                      />
-                      {formData.vegMenu.sweet.includes("Other") && (
-                        <Input
-                          placeholder="Type your own sweet..."
-                          value={customInputs.vegSweet}
-                          onChange={(e) => {
-                            const customValue = e.target.value;
-                            setCustomInputs(prev => ({ ...prev, vegSweet: customValue }));
-                            // Replace "Other" with custom text in the array
-                            const updated = formData.vegMenu.sweet.map(item => 
-                              item === "Other" ? (customValue || "Other") : item
-                            );
-                            updateVegMenu("sweet", updated);
-                          }}
-                          className="h-11 mt-2"
-                        />
+                      <Label className="text-slate-600 font-semibold">Sweets</Label>
+                      {formData.vegMenu.sweet.map((item, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={item}
+                            onChange={(e) => updateFoodItem("sweet", index, e.target.value, true)}
+                            placeholder="Enter sweet name..."
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeFoodItem("sweet", index, true)}
+                            className="h-10 w-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {formData.vegMenu.sweet.length < 10 && (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Add sweet..."
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const input = e.target as HTMLInputElement;
+                                addFoodItem("sweet", input.value, true);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                              if (input) {
+                                addFoodItem("sweet", input.value, true);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 w-10"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
+                    {/* Hot Items */}
                     <div className="space-y-2">
-                      <Label className="text-slate-600">Hot Items (Select up to 2)</Label>
-                      <MultiSelectCurry
-                        options={[...vegHotItems, "Other"]}
-                        selected={formData.vegMenu.hotItem}
-                        onChange={(selected) => {
-                          // If "Other" was removed, clear custom input
-                          if (!selected.includes("Other") && formData.vegMenu.hotItem.includes("Other")) {
-                            setCustomInputs(prev => ({ ...prev, vegHotItem: "" }));
-                          }
-                          updateVegMenu("hotItem", selected);
-                        }}
-                        placeholder="Select hot items..."
-                        maxSelections={2}
-                        itemLabel="hot items"
-                      />
-                      {formData.vegMenu.hotItem.includes("Other") && (
-                        <Input
-                          placeholder="Type your own hot item..."
-                          value={customInputs.vegHotItem}
-                          onChange={(e) => {
-                            const customValue = e.target.value;
-                            setCustomInputs(prev => ({ ...prev, vegHotItem: customValue }));
-                            // Replace "Other" with custom text in the array
-                            const updated = formData.vegMenu.hotItem.map(item => 
-                              item === "Other" ? (customValue || "Other") : item
-                            );
-                            updateVegMenu("hotItem", updated);
-                          }}
-                          className="h-11 mt-2"
-                        />
+                      <Label className="text-slate-600 font-semibold">Hot Items</Label>
+                      {formData.vegMenu.hotItem.map((item, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={item}
+                            onChange={(e) => updateFoodItem("hotItem", index, e.target.value, true)}
+                            placeholder="Enter hot item name..."
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeFoodItem("hotItem", index, true)}
+                            className="h-10 w-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {formData.vegMenu.hotItem.length < 10 && (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Add hot item..."
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const input = e.target as HTMLInputElement;
+                                addFoodItem("hotItem", input.value, true);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                              if (input) {
+                                addFoodItem("hotItem", input.value, true);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 w-10"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -769,152 +979,217 @@ export default function AdminDashboardPage() {
                       <span className="w-2 h-2 rounded-full bg-green-500"></span>
                       Main Course
                     </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Pappu */}
                       <div className="space-y-2">
-                        <Label className="text-slate-600 text-sm">Pappu</Label>
-                        <Select
-                          value={formData.vegMenu.pappu}
-                          onValueChange={(value) => {
-                            if (value === "Other") {
-                              updateVegMenu("pappu", "Other");
-                            } else {
-                              updateVegMenu("pappu", value);
-                              setCustomInputs(prev => ({ ...prev, vegPappu: "" }));
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="h-11">
-                            <SelectValue placeholder="Select pappu" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {vegPappu.map((item) => (
-                              <SelectItem key={item} value={item}>
-                                {item}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="Other">Other...</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {formData.vegMenu.pappu === "Other" && (
-                          <Input
-                            placeholder="Type your own pappu..."
-                            value={customInputs.vegPappu}
-                            onChange={(e) => {
-                              const customValue = e.target.value;
-                              setCustomInputs(prev => ({ ...prev, vegPappu: customValue }));
-                              updateVegMenu("pappu", customValue || "Other");
-                            }}
-                            className="h-11 mt-2"
-                          />
+                        <Label className="text-slate-600 text-sm font-semibold">Pappu</Label>
+                        {formData.vegMenu.pappu.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={item}
+                              onChange={(e) => updateFoodItem("pappu", index, e.target.value, true)}
+                              placeholder="Enter pappu name..."
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeFoodItem("pappu", index, true)}
+                              className="h-10 w-10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {formData.vegMenu.pappu.length < 10 && (
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add pappu..."
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const input = e.target as HTMLInputElement;
+                                  addFoodItem("pappu", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                                if (input) {
+                                  addFoodItem("pappu", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 w-10"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
+                      {/* Curry */}
                       <div className="space-y-2">
-                        <Label className="text-slate-600 text-sm">Curry (Select up to 2)</Label>
-                        <MultiSelectCurry
-                          options={[...vegCurry, "Other"]}
-                          selected={formData.vegMenu.curry}
-                          onChange={(selected) => {
-                            // If "Other" was removed, clear custom input
-                            if (!selected.includes("Other") && formData.vegMenu.curry.includes("Other")) {
-                              setCustomInputs(prev => ({ ...prev, vegCurry: "" }));
-                            }
-                            updateVegMenu("curry", selected);
-                          }}
-                          placeholder="Select curries..."
-                          maxSelections={2}
-                          itemLabel="curries"
-                        />
-                        {formData.vegMenu.curry.includes("Other") && (
-                          <Input
-                            placeholder="Type your own curry..."
-                            value={customInputs.vegCurry}
-                            onChange={(e) => {
-                              const customValue = e.target.value;
-                              setCustomInputs(prev => ({ ...prev, vegCurry: customValue }));
-                              // Replace "Other" with custom text in the array
-                              const updated = formData.vegMenu.curry.map(item => 
-                                item === "Other" ? (customValue || "Other") : item
-                              );
-                              updateVegMenu("curry", updated);
-                            }}
-                            className="h-11 mt-2"
-                          />
+                        <Label className="text-slate-600 text-sm font-semibold">Curry</Label>
+                        {formData.vegMenu.curry.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={item}
+                              onChange={(e) => updateFoodItem("curry", index, e.target.value, true)}
+                              placeholder="Enter curry name..."
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeFoodItem("curry", index, true)}
+                              className="h-10 w-10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {formData.vegMenu.curry.length < 10 && (
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add curry..."
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const input = e.target as HTMLInputElement;
+                                  addFoodItem("curry", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                                if (input) {
+                                  addFoodItem("curry", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 w-10"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
+                      {/* Fry */}
                       <div className="space-y-2">
-                        <Label className="text-slate-600 text-sm">Fry</Label>
-                        <Select
-                          value={formData.vegMenu.fry}
-                          onValueChange={(value) => {
-                            if (value === "Other") {
-                              updateVegMenu("fry", "Other");
-                            } else {
-                              updateVegMenu("fry", value);
-                              setCustomInputs(prev => ({ ...prev, vegFry: "" }));
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="h-11">
-                            <SelectValue placeholder="Select fry" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {vegFry.map((item) => (
-                              <SelectItem key={item} value={item}>
-                                {item}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="Other">Other...</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {formData.vegMenu.fry === "Other" && (
-                          <Input
-                            placeholder="Type your own fry..."
-                            value={customInputs.vegFry}
-                            onChange={(e) => {
-                              const customValue = e.target.value;
-                              setCustomInputs(prev => ({ ...prev, vegFry: customValue }));
-                              updateVegMenu("fry", customValue || "Other");
-                            }}
-                            className="h-11 mt-2"
-                          />
+                        <Label className="text-slate-600 text-sm font-semibold">Fry</Label>
+                        {formData.vegMenu.fry.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={item}
+                              onChange={(e) => updateFoodItem("fry", index, e.target.value, true)}
+                              placeholder="Enter fry name..."
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeFoodItem("fry", index, true)}
+                              className="h-10 w-10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {formData.vegMenu.fry.length < 10 && (
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add fry..."
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const input = e.target as HTMLInputElement;
+                                  addFoodItem("fry", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                                if (input) {
+                                  addFoodItem("fry", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 w-10"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
+                      {/* Pickle */}
                       <div className="space-y-2">
-                        <Label className="text-slate-600 text-sm">Pickle</Label>
-                        <Select
-                          value={formData.vegMenu.pickle}
-                          onValueChange={(value) => {
-                            if (value === "Other") {
-                              updateVegMenu("pickle", "Other");
-                            } else {
-                              updateVegMenu("pickle", value);
-                              setCustomInputs(prev => ({ ...prev, vegPickle: "" }));
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="h-11">
-                            <SelectValue placeholder="Select pickle" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {vegPickles.map((item) => (
-                              <SelectItem key={item} value={item}>
-                                {item}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="Other">Other...</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {formData.vegMenu.pickle === "Other" && (
-                          <Input
-                            placeholder="Type your own pickle..."
-                            value={customInputs.vegPickle}
-                            onChange={(e) => {
-                              const customValue = e.target.value;
-                              setCustomInputs(prev => ({ ...prev, vegPickle: customValue }));
-                              updateVegMenu("pickle", customValue || "Other");
-                            }}
-                            className="h-11 mt-2"
-                          />
+                        <Label className="text-slate-600 text-sm font-semibold">Pickle</Label>
+                        {formData.vegMenu.pickle.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={item}
+                              onChange={(e) => updateFoodItem("pickle", index, e.target.value, true)}
+                              placeholder="Enter pickle name..."
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeFoodItem("pickle", index, true)}
+                              className="h-10 w-10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {formData.vegMenu.pickle.length < 10 && (
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add pickle..."
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const input = e.target as HTMLInputElement;
+                                  addFoodItem("pickle", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                                if (input) {
+                                  addFoodItem("pickle", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 w-10"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -962,42 +1237,56 @@ export default function AdminDashboardPage() {
                       />
                     </div>
                     {formData.vegMenu.iceCream && (
-                      <div className="mt-4 animate-in slide-in-from-top-2">
-                        <Label className="text-slate-600 text-sm">Select Flavor</Label>
-                        <Select
-                          value={formData.vegMenu.iceCreamFlavor}
-                          onValueChange={(value) => {
-                            if (value === "Other") {
-                              updateVegMenu("iceCreamFlavor", "Other");
-                            } else {
-                              updateVegMenu("iceCreamFlavor", value);
-                              setCustomInputs(prev => ({ ...prev, vegIceCream: "" }));
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="h-11 mt-2 bg-white">
-                            <SelectValue placeholder="Choose flavor" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {iceCreamFlavors.map((flavor) => (
-                              <SelectItem key={flavor} value={flavor}>
-                                {flavor}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="Other">Other...</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {formData.vegMenu.iceCreamFlavor === "Other" && (
-                          <Input
-                            placeholder="Type your own flavor..."
-                            value={customInputs.vegIceCream}
-                            onChange={(e) => {
-                              const customValue = e.target.value;
-                              setCustomInputs(prev => ({ ...prev, vegIceCream: customValue }));
-                              updateVegMenu("iceCreamFlavor", customValue || "Other");
-                            }}
-                            className="h-11 mt-2"
-                          />
+                      <div className="mt-4 animate-in slide-in-from-top-2 space-y-2">
+                        <Label className="text-slate-600 text-sm font-semibold">Ice Cream Flavors</Label>
+                        {formData.vegMenu.iceCreamFlavor.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={item}
+                              onChange={(e) => updateFoodItem("iceCreamFlavor", index, e.target.value, true)}
+                              placeholder="Enter flavor name..."
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeFoodItem("iceCreamFlavor", index, true)}
+                              className="h-10 w-10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {formData.vegMenu.iceCreamFlavor.length < 10 && (
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add flavor..."
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const input = e.target as HTMLInputElement;
+                                  addFoodItem("iceCreamFlavor", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                                if (input) {
+                                  addFoodItem("iceCreamFlavor", input.value, true);
+                                  input.value = "";
+                                }
+                              }}
+                              className="h-10 w-10"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -1007,153 +1296,216 @@ export default function AdminDashboardPage() {
                 {/* Non-Veg Menu Tab */}
                 <TabsContent value="nonveg" className="mt-6 space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Starters */}
                     <div className="space-y-2">
-                      <Label className="text-slate-600">Starters</Label>
-                      <Select
-                        value={formData.nonVegMenu.starter}
-                        onValueChange={(value) => {
-                          if (value === "Other") {
-                            updateNonVegMenu("starter", "Other");
-                          } else {
-                            updateNonVegMenu("starter", value);
-                            setCustomInputs(prev => ({ ...prev, nonVegStarter: "" }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Select starter" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {nonVegStarters.map((item) => (
-                            <SelectItem key={item} value={item}>
-                              {item}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {formData.nonVegMenu.starter === "Other" && (
-                        <Input
-                          placeholder="Type your own starter..."
-                          value={customInputs.nonVegStarter}
-                          onChange={(e) => {
-                            const customValue = e.target.value;
-                            setCustomInputs(prev => ({ ...prev, nonVegStarter: customValue }));
-                            updateNonVegMenu("starter", customValue || "Other");
-                          }}
-                          className="h-11 mt-2"
-                        />
+                      <Label className="text-slate-600 font-semibold">Starters</Label>
+                      {formData.nonVegMenu.starter.map((item, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={item}
+                            onChange={(e) => updateFoodItem("starter", index, e.target.value, false)}
+                            placeholder="Enter starter name..."
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeFoodItem("starter", index, false)}
+                            className="h-10 w-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {formData.nonVegMenu.starter.length < 10 && (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Add starter..."
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const input = e.target as HTMLInputElement;
+                                addFoodItem("starter", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                              if (input) {
+                                addFoodItem("starter", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 w-10"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
+                    {/* Gravy */}
                     <div className="space-y-2">
-                      <Label className="text-slate-600">Gravy (Select up to 2)</Label>
-                      <MultiSelectCurry
-                        options={[...nonVegGravy, "Other"]}
-                        selected={formData.nonVegMenu.gravy}
-                        onChange={(selected) => {
-                          // If "Other" was removed, clear custom input
-                          if (!selected.includes("Other") && formData.nonVegMenu.gravy.includes("Other")) {
-                            setCustomInputs(prev => ({ ...prev, nonVegGravy: "" }));
-                          }
-                          updateNonVegMenu("gravy", selected);
-                        }}
-                        placeholder="Select gravies..."
-                        maxSelections={2}
-                        itemLabel="gravies"
-                      />
-                      {formData.nonVegMenu.gravy.includes("Other") && (
-                        <Input
-                          placeholder="Type your own gravy..."
-                          value={customInputs.nonVegGravy}
-                          onChange={(e) => {
-                            const customValue = e.target.value;
-                            setCustomInputs(prev => ({ ...prev, nonVegGravy: customValue }));
-                            // Replace "Other" with custom text in the array
-                            const updated = formData.nonVegMenu.gravy.map(item => 
-                              item === "Other" ? (customValue || "Other") : item
-                            );
-                            updateNonVegMenu("gravy", updated);
-                          }}
-                          className="h-11 mt-2"
-                        />
+                      <Label className="text-slate-600 font-semibold">Gravy</Label>
+                      {formData.nonVegMenu.gravy.map((item, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={item}
+                            onChange={(e) => updateFoodItem("gravy", index, e.target.value, false)}
+                            placeholder="Enter gravy name..."
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeFoodItem("gravy", index, false)}
+                            className="h-10 w-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {formData.nonVegMenu.gravy.length < 10 && (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Add gravy..."
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const input = e.target as HTMLInputElement;
+                                addFoodItem("gravy", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                              if (input) {
+                                addFoodItem("gravy", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 w-10"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Fry */}
                     <div className="space-y-2">
-                      <Label className="text-slate-600">Fry</Label>
-                      <Select
-                        value={formData.nonVegMenu.fry}
-                        onValueChange={(value) => {
-                          if (value === "Other") {
-                            updateNonVegMenu("fry", "Other");
-                          } else {
-                            updateNonVegMenu("fry", value);
-                            setCustomInputs(prev => ({ ...prev, nonVegFry: "" }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Select fry" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {nonVegFry.map((item) => (
-                            <SelectItem key={item} value={item}>
-                              {item}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {formData.nonVegMenu.fry === "Other" && (
-                        <Input
-                          placeholder="Type your own fry..."
-                          value={customInputs.nonVegFry}
-                          onChange={(e) => {
-                            const customValue = e.target.value;
-                            setCustomInputs(prev => ({ ...prev, nonVegFry: customValue }));
-                            updateNonVegMenu("fry", customValue || "Other");
-                          }}
-                          className="h-11 mt-2"
-                        />
+                      <Label className="text-slate-600 font-semibold">Fry</Label>
+                      {formData.nonVegMenu.fry.map((item, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={item}
+                            onChange={(e) => updateFoodItem("fry", index, e.target.value, false)}
+                            placeholder="Enter fry name..."
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeFoodItem("fry", index, false)}
+                            className="h-10 w-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {formData.nonVegMenu.fry.length < 10 && (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Add fry..."
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const input = e.target as HTMLInputElement;
+                                addFoodItem("fry", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                              if (input) {
+                                addFoodItem("fry", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 w-10"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
+                    {/* Biryani */}
                     <div className="space-y-2">
-                      <Label className="text-slate-600">Biryani</Label>
-                      <Select
-                        value={formData.nonVegMenu.biryani}
-                        onValueChange={(value) => {
-                          if (value === "Other") {
-                            updateNonVegMenu("biryani", "Other");
-                          } else {
-                            updateNonVegMenu("biryani", value);
-                            setCustomInputs(prev => ({ ...prev, nonVegBiryani: "" }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Select biryani" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {nonVegBiryani.map((item) => (
-                            <SelectItem key={item} value={item}>
-                              {item}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {formData.nonVegMenu.biryani === "Other" && (
-                        <Input
-                          placeholder="Type your own biryani..."
-                          value={customInputs.nonVegBiryani}
-                          onChange={(e) => {
-                            const customValue = e.target.value;
-                            setCustomInputs(prev => ({ ...prev, nonVegBiryani: customValue }));
-                            updateNonVegMenu("biryani", customValue || "Other");
-                          }}
-                          className="h-11 mt-2"
-                        />
+                      <Label className="text-slate-600 font-semibold">Biryani</Label>
+                      {formData.nonVegMenu.biryani.map((item, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={item}
+                            onChange={(e) => updateFoodItem("biryani", index, e.target.value, false)}
+                            placeholder="Enter biryani name..."
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeFoodItem("biryani", index, false)}
+                            className="h-10 w-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {formData.nonVegMenu.biryani.length < 10 && (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Add biryani..."
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const input = e.target as HTMLInputElement;
+                                addFoodItem("biryani", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              const input = (e.target as HTMLElement).closest("div")?.querySelector("input") as HTMLInputElement;
+                              if (input) {
+                                addFoodItem("biryani", input.value, false);
+                                input.value = "";
+                              }
+                            }}
+                            className="h-10 w-10"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1179,6 +1531,11 @@ export default function AdminDashboardPage() {
                   <p>Decoration: {formatCurrency(formData.decorationCharges)}</p>
                   <p>Entry: {formatCurrency(formData.entryCharges)}</p>
                   <p>Food: {formatCurrency(formData.foodBill)}</p>
+                  {formData.functionHallCharges > 0 && <p>Function Hall: {formatCurrency(formData.functionHallCharges)}</p>}
+                  {formData.tentHouseCharges > 0 && <p>Tent House: {formatCurrency(formData.tentHouseCharges)}</p>}
+                  {formData.photographyCharges > 0 && <p>Photography: {formatCurrency(formData.photographyCharges)}</p>}
+                  {formData.lightingCharges > 0 && <p>Lighting: {formatCurrency(formData.lightingCharges)}</p>}
+                  {formData.flexiBannerCharges > 0 && <p>Flexi/Banner: {formatCurrency(formData.flexiBannerCharges)}</p>}
                 </div>
               </div>
             </CardContent>
@@ -1310,15 +1667,33 @@ export default function AdminDashboardPage() {
                       Veg Items
                     </h4>
                     <ul className="text-sm space-y-1 text-slate-600">
-                      {filterOther(formData.vegMenu.sweet).length > 0 && <li>Sweet: {filterOther(formData.vegMenu.sweet).join(", ")}</li>}
-                      {filterOther(formData.vegMenu.hotItem).length > 0 && <li>Hot Item: {filterOther(formData.vegMenu.hotItem).join(", ")}</li>}
-                      {getDisplayValue(formData.vegMenu.pappu) && <li>Pappu: {getDisplayValue(formData.vegMenu.pappu)}</li>}
-                      {filterOther(formData.vegMenu.curry).length > 0 && <li>Curry: {filterOther(formData.vegMenu.curry).join(", ")}</li>}
-                      {getDisplayValue(formData.vegMenu.fry) && <li>Fry: {getDisplayValue(formData.vegMenu.fry)}</li>}
-                      {getDisplayValue(formData.vegMenu.pickle) && <li>Pickle: {getDisplayValue(formData.vegMenu.pickle)}</li>}
-                      {getSelectedStaples() && <li>Staples: {getSelectedStaples()}</li>}
+                      {formData.vegMenu.sweet.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Sweets:</span> {formData.vegMenu.sweet.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {formData.vegMenu.hotItem.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Hot Items:</span> {formData.vegMenu.hotItem.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {formData.vegMenu.pappu.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Pappu:</span> {formData.vegMenu.pappu.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {formData.vegMenu.curry.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Curry:</span> {formData.vegMenu.curry.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {formData.vegMenu.fry.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Fry:</span> {formData.vegMenu.fry.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {formData.vegMenu.pickle.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Pickle:</span> {formData.vegMenu.pickle.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {getSelectedStaples() && <li><span className="font-bold">Staples:</span> {getSelectedStaples()}</li>}
                       {formData.vegMenu.iceCream && (
-                        <li>Ice Cream: {getDisplayValue(formData.vegMenu.iceCreamFlavor) || "Yes"}</li>
+                        <li>
+                          <span className="font-bold">Ice Cream:</span> {
+                            formData.vegMenu.iceCreamFlavor.filter(item => item.trim() !== "").length > 0
+                              ? formData.vegMenu.iceCreamFlavor.filter(item => item.trim() !== "").join(", ")
+                              : "Yes"
+                          }
+                        </li>
                       )}
                     </ul>
                   </div>
@@ -1330,13 +1705,17 @@ export default function AdminDashboardPage() {
                       Non-Veg Items
                     </h4>
                     <ul className="text-sm space-y-1 text-slate-600">
-                      {getDisplayValue(formData.nonVegMenu.starter) && (
-                        <li>Starter: {getDisplayValue(formData.nonVegMenu.starter)}</li>
+                      {formData.nonVegMenu.starter.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Starters:</span> {formData.nonVegMenu.starter.filter(item => item.trim() !== "").join(", ")}</li>
                       )}
-                      {filterOther(formData.nonVegMenu.gravy).length > 0 && <li>Gravy: {filterOther(formData.nonVegMenu.gravy).join(", ")}</li>}
-                      {getDisplayValue(formData.nonVegMenu.fry) && <li>Fry: {getDisplayValue(formData.nonVegMenu.fry)}</li>}
-                      {getDisplayValue(formData.nonVegMenu.biryani) && (
-                        <li>Biryani: {getDisplayValue(formData.nonVegMenu.biryani)}</li>
+                      {formData.nonVegMenu.gravy.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Gravy:</span> {formData.nonVegMenu.gravy.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {formData.nonVegMenu.fry.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Fry:</span> {formData.nonVegMenu.fry.filter(item => item.trim() !== "").join(", ")}</li>
+                      )}
+                      {formData.nonVegMenu.biryani.filter(item => item.trim() !== "").length > 0 && (
+                        <li><span className="font-bold">Biryani:</span> {formData.nonVegMenu.biryani.filter(item => item.trim() !== "").join(", ")}</li>
                       )}
                     </ul>
                   </div>
@@ -1364,6 +1743,36 @@ export default function AdminDashboardPage() {
                     <span className="text-slate-600">Food Bill</span>
                     <span className="font-medium">{formatCurrency(formData.foodBill)}</span>
                   </div>
+                  {formData.functionHallCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Function Hall Charges</span>
+                      <span className="font-medium">{formatCurrency(formData.functionHallCharges)}</span>
+                    </div>
+                  )}
+                  {formData.tentHouseCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Tent House Charges</span>
+                      <span className="font-medium">{formatCurrency(formData.tentHouseCharges)}</span>
+                    </div>
+                  )}
+                  {formData.photographyCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Photography Charges</span>
+                      <span className="font-medium">{formatCurrency(formData.photographyCharges)}</span>
+                    </div>
+                  )}
+                  {formData.lightingCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Lighting Charges</span>
+                      <span className="font-medium">{formatCurrency(formData.lightingCharges)}</span>
+                    </div>
+                  )}
+                  {formData.flexiBannerCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Flexi / Banner Charges</span>
+                      <span className="font-medium">{formatCurrency(formData.flexiBannerCharges)}</span>
+                    </div>
+                  )}
                   
                   {/* Extra Charges List */}
                   {extraCharges.length > 0 && (
