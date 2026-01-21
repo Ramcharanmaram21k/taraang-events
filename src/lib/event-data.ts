@@ -53,7 +53,7 @@ export const vegHotItems = [
   "Samosa",
   "Cutlet",
   "Mirchi Bajji",
-  
+
   "Pakodi",
   "Onion Bhaji",
   "Aloo Tikki",
@@ -104,6 +104,12 @@ export const vegStaples = [
   { id: "biriyani", label: "Biriyani" },
   { id: "killi", label: "Killi" },
   { id: "ghee", label: "Ghee" },
+  { id: "customizedWaterBottles", label: "Customized Water Bottles" },
+  { id: "dalcha", label: "Dalcha" },
+  { id: "peruguChutney", label: "Perugu Chutney" },
+  { id: "pulka", label: "Pulka" },
+  { id: "butterNaan", label: "Butter Naan" },
+  { id: "raagiSangati", label: "Raagi Sangati" },
 ];
 
 export const vegPickles = [
@@ -171,6 +177,8 @@ export const nonVegBiryani = [
 
 // Form state types
 export interface VegMenuState {
+  welcomeDrinks: string[]; // Free-text array
+  snacks: string[]; // Free-text array
   sweet: string[];  // Free-text array (up to 10 items)
   hotItem: string[];  // Free-text array (up to 10 items)
   pappu: string[];  // Free-text array (up to 10 items)
@@ -178,7 +186,7 @@ export interface VegMenuState {
   fry: string[];  // Free-text array (up to 10 items)
   pickle: string[];  // Free-text array (up to 10 items)
   staples: Record<string, boolean>;
-  iceCream: boolean;
+  customStaples: string[];
   iceCreamFlavor: string[];
 }
 
@@ -224,6 +232,8 @@ export const initialFormState: EventFormState = {
   eventDate: "",
   guestCount: 0,
   vegMenu: {
+    welcomeDrinks: [],
+    snacks: [],
     sweet: [],  // Free-text array
     hotItem: [],  // Free-text array
     pappu: [],  // Free-text array
@@ -237,8 +247,14 @@ export const initialFormState: EventFormState = {
       biriyani: false,
       killi: false,
       ghee: false,
+      customizedWaterBottles: false,
+      dalcha: false,
+      peruguChutney: false,
+      pulka: false,
+      butterNaan: false,
+      raagiSangati: false,
     },
-    iceCream: false,
+    customStaples: [],
     iceCreamFlavor: [],  // Free-text array
   },
   nonVegMenu: {
