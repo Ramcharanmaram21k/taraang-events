@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useRef } from 'react';
 import { Plus, Trash2, Download, FileText, Check, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
