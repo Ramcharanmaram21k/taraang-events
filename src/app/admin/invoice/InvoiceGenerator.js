@@ -95,9 +95,13 @@ export default function InvoiceGenerator() {
             });
 
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
+
+            // Calculate dimensions based on A4 width (210mm)
+            const pdfWidth = 210;
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            // Use custom page size matching the content height
+            const pdf = new jsPDF('p', 'mm', [pdfWidth, pdfHeight]);
 
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save(`Invoice_${customerName.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
